@@ -40,7 +40,7 @@ download_file() {
 
 FILTERED_TOOLS_LIST=$(echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$')
 for tool in $FILTERED_TOOLS_LIST; do
-    TOOL_DIR=$(echo "$tool" | cut -d'_' -f1)
+    TOOL_DIR=$(echo "$tool" | cut -d '-' -f1)
     TOOL_SCRIPT="$TOOL_DIR/$tool.sh"
 
     # Check if script exists, otherwise download it
@@ -56,7 +56,7 @@ for tool in $FILTERED_TOOLS_LIST; do
 
     chmod +x "$TOOL_SCRIPT"
     echo "Installing $tool from $TOOL_SCRIPT..."
-    "$TOOL_SCRIPT"
+    "$TOOL_SCRIPT" "$TOOLS_DIR"
     rm -f "$TOOL_SCRIPT"
     echo "Removed $TOOL_SCRIPT after execution."
 done
