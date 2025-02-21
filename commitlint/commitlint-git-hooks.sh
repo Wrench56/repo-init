@@ -1,12 +1,22 @@
 #!/bin/sh
 
 # A script to create git hooks checking commit against commitlint
-# Arguments:
-#  > 1: path to commitlint executable
+
+# shellcheck disable=SC2154
+
+if [ "${COMMITLINT_USE_GLOBAL_EXECUTABLE:-$false}" -eq "$true" ]; then
+    COMMITLINT_PATH="$HOME/.local/bin"
+    if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+        echo "Warning: $HOME/.local/bin is not in PATH. Consider adding this to your shell config:"
+        echo "export PATH=\"$HOME/.local/bin:$PATH\""
+    fi
+else
+    COMMITLINT_PATH="$TOOLS_DIR"
+fi
 
 HOOK_DIR=".git/hooks"
 COMMIT_MSG_HOOK="$HOOK_DIR/commit-msg"
-COMMIT_MSG_HOOK_SCRIPT=$(sed "s|__COMMITLINT_PATH__|$1|g" << 'EOF'
+COMMIT_MSG_HOOK_SCRIPT=$(sed "s|__COMMITLINT_PATH__|$COMMITLINT_PATH|g" << 'EOF'
 COMMITLINT_OUTPUT=$(cat "$1" | __COMMITLINT_PATH__/commitlint 2>&1)
 COMMITLINT_EXIT_CODE=$?
 
