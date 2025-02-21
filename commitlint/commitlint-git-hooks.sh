@@ -2,12 +2,12 @@
 
 # A script to create git hooks checking commit against commitlint
 # Arguments:
-#  > 1: commitlint exectuable
+#  > 1: path to commitlint executable
 
 HOOK_DIR=".git/hooks"
 COMMIT_MSG_HOOK="$HOOK_DIR/commit-msg"
-COMMIT_MSG_HOOK_SCRIPT=$(sed "s|__COMMITLINT_CMD__|$1|g" << 'EOF'
-COMMITLINT_OUTPUT=$(cat "$1" | __COMMITLINT_CMD__ 2>&1)
+COMMIT_MSG_HOOK_SCRIPT=$(sed "s|__COMMITLINT_PATH__|$1|g" << 'EOF'
+COMMITLINT_OUTPUT=$(cat "$1" | __COMMITLINT_PATH__/commitlint 2>&1)
 COMMITLINT_EXIT_CODE=$?
 
 if [ $COMMITLINT_EXIT_CODE -ne 0 ]; then
