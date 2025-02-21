@@ -2,7 +2,7 @@
 
 # repo-init main script
 
-# shellcheck disable=SC1090,SC2153,SC2154
+# shellcheck disable=SC1090,SC2153,SC2154,SC2181
 
 set -e
 
@@ -58,7 +58,8 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
         echo "$INFO_NODE Downloading $TOOL_SCRIPT..."
 
-        if ! download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"; then
+        download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"
+        if [ $? -ne 0 ]; then
             echo "$ERROR_NODE Error: Failed to download $TOOL_SCRIPT. Skipping..." >&2
             continue
         fi
