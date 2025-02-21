@@ -40,7 +40,7 @@ download_file() {
 
 # Format the output of a called tool
 format_tool_output() {
-    "$@" 2>&1 | while IFS= read -r line; do
+    . "$@" 2>&1 | while IFS= read -r line; do
         printf "$OUTP_NODE    %s\n" "$line"
     done
 }
