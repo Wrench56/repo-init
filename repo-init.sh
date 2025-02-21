@@ -14,6 +14,30 @@ ERROR_NODE="[\033[31m!\033[0m]"
 END_NODE="[\033[32m$\033[0m]"
 INFO_NODE="[\033[34m*\033[0m]"
 
+
+# Download files using curl or wget
+download_file() {
+    url="$1"
+    dest="$2"
+
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL -o "$dest" "$url" && return 0
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q -O "$dest" "$url" && return 0
+    else
+        echo "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
+        exit 3
+    fi
+}
+
+# Format the output of a called tool
+format_tool_output() {
+    "$@" 2>&1 | while IFS= read -r line; do
+        printf "[\033[35m@\033[0m]    %s\n" "$line"
+    done
+}
+
+
 # Load configuration
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
@@ -31,22 +55,6 @@ mkdir -p "$TOOLS_DIR" || {
     echo "$ERROR_NODE Error: Could not create tools directory '$TOOLS_DIR'." >&2
     exit 2
 }
-
-# Download files using curl or wget
-download_file() {
-    url="$1"
-    dest="$2"
-
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL -o "$dest" "$url" && return 0
-    elif command -v wget >/dev/null 2>&1; then
-        wget -q -O "$dest" "$url" && return 0
-    else
-        echo "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
-        exit 3
-    fi
-}
-
 
 echo "$INFO_NODE Processing tools..."
 echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
@@ -67,9 +75,9 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
 
     chmod +x "$TOOLS_DIR/$TOOL_SCRIPT"
     echo "$INFO_NODE Installing $tool..."
-    "$TOOLS_DIR/$TOOL_SCRIPT" "$TOOLS_DIR"
+    format_tool_output "$TOOLS_DIR/$TOOL_SCRIPT" "$TOOLS_DIR"
     rm -f "$TOOLS_DIR/$TOOL_SCRIPT"
-    echo "$INFO_NODE Removed $TOOL_SCRIPT after execution."
+    echo "$INFO_NODE Removed $TOOL_SCRIPT."
 done
 
 echo "$END_NODE Setup complete!"
