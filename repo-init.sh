@@ -10,9 +10,17 @@ CONFIG_FILE="./repo.conf"
 DEFAULT_REPO_URL="https://raw.githubusercontent.com/Wrench56/repo-init/main"
 
 # ANSI color codes
-ERROR_NODE="[\033[31m!\033[0m]"
-END_NODE="[\033[32m$\033[0m]"
-INFO_NODE="[\033[34m*\033[0m]"
+if [ -t 1 ]; then
+    ERROR_NODE="[\033[31m!\033[0m]"
+    END_NODE="[\033[32m$\033[0m]"
+    INFO_NODE="[\033[34m*\033[0m]"
+    OUTP_NODE="[\033[35m@\033[0m]"
+else
+    ERROR_NODE="[!]"
+    END_NODE="[$]"
+    INFO_NODE="[*]"
+    OUTP_NODE="[@]"
+fi
 
 
 # Download files using curl or wget
@@ -33,7 +41,7 @@ download_file() {
 # Format the output of a called tool
 format_tool_output() {
     "$@" 2>&1 | while IFS= read -r line; do
-        printf "[\033[35m@\033[0m]    %s\n" "$line"
+        printf "$OUTP_NODE    %s\n" "$line"
     done
 }
 
