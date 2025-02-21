@@ -2,7 +2,7 @@
 
 # repo-init main script
 
-# shellcheck disable=SC1090,SC2153
+# shellcheck disable=SC1090,SC2153,SC2154
 
 CONFIG_FILE="./repo.conf"
 DEFAULT_REPO_URL="https://raw.githubusercontent.com/Wrench56/repo-init/main"
