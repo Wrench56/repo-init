@@ -4,6 +4,8 @@
 
 # shellcheck disable=SC1090,SC2153,SC2154
 
+set -e
+
 CONFIG_FILE="./repo.conf"
 DEFAULT_REPO_URL="https://raw.githubusercontent.com/Wrench56/repo-init/main"
 
@@ -11,35 +13,40 @@ DEFAULT_REPO_URL="https://raw.githubusercontent.com/Wrench56/repo-init/main"
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
-    echo "No configuration found!"
+    echo "Error: No configuration found!" >&2
     exit 1
 fi
 
+# Ensure required config variables are set
+: "${TOOLS_DIR:?Error: TOOLS_DIR is not defined in repo.conf}"
+: "${TOOLS_LIST:?Error: TOOLS_LIST is not defined in repo.conf}"
+
 # Ensure TOOLS_DIR exists
 mkdir -p "$TOOLS_DIR" || {
-    echo "Error: Could not create tools directory '$TOOLS_DIR'."
+    echo "Error: Could not create tools directory '$TOOLS_DIR'." >&2
     exit 1
 }
 
 # Download files using curl or wget
 download_file() {
-    URL="$1"
-    DEST="$2"
+    url="$1"
+    dest="$2"
 
-    echo "Attempting to download $URL..."
+    echo "Attempting to download $url..."
 
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL -o "$DEST" "$URL" && return 0
+        curl -fsSL -o "$dest" "$url" && return 0
     elif command -v wget >/dev/null 2>&1; then
-        wget -q -O "$DEST" "$URL" && return 0
+        wget -q -O "$dest" "$url" && return 0
     fi
 
-    echo "Error: Neither 'curl' nor 'wget' is available. Cannot download $URL."
+    echo "Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
     return 1
 }
 
-FILTERED_TOOLS_LIST=$(echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$')
-for tool in $FILTERED_TOOLS_LIST; do
+
+echo "Processing tools..."
+echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     TOOL_SYSTEM=$(echo "$tool" | cut -d '-' -f1)
     TOOL_SCRIPT="$tool.sh"
 
@@ -47,9 +54,9 @@ for tool in $FILTERED_TOOLS_LIST; do
     if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
         echo "Downloading $TOOL_SCRIPT from $TOOL_URL..."
-        
+
         if ! download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"; then
-            echo "Error: Failed to download $TOOL_SCRIPT. Skipping..."
+            echo "Error: Failed to download $TOOL_SCRIPT. Skipping..." >&2
             continue
         fi
     fi
