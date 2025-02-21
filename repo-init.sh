@@ -57,8 +57,8 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
         echo "$INFO_NODE Downloading $TOOL_SCRIPT..."
-        download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_PATH"
-        if [ $? -ne 0 ]; then
+
+        if ! download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"; then
             echo "$ERROR_NODE Error: Failed to download $TOOL_SCRIPT. Skipping..." >&2
             continue
         fi
