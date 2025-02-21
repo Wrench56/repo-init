@@ -32,8 +32,6 @@ download_file() {
     url="$1"
     dest="$2"
 
-    echo "Attempting to download $url..."
-
     if command -v curl >/dev/null 2>&1; then
         curl -fsSL -o "$dest" "$url" && return 0
     elif command -v wget >/dev/null 2>&1; then
@@ -62,7 +60,7 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     fi
 
     chmod +x "$TOOLS_DIR/$TOOL_SCRIPT"
-    echo "Installing $tool from $TOOL_SCRIPT..."
+    echo "Installing $tool..."
     "$TOOLS_DIR/$TOOL_SCRIPT" "$TOOLS_DIR"
     rm -f "$TOOLS_DIR/$TOOL_SCRIPT"
     echo "Removed $TOOL_SCRIPT after execution."
