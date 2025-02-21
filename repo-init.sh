@@ -29,7 +29,7 @@ fi
 # Ensure TOOLS_DIR exists
 mkdir -p "$TOOLS_DIR" || {
     echo "$ERROR_NODE Error: Could not create tools directory '$TOOLS_DIR'." >&2
-    exit 1
+    exit 2
 }
 
 # Download files using curl or wget
@@ -41,10 +41,10 @@ download_file() {
         curl -fsSL -o "$dest" "$url" && return 0
     elif command -v wget >/dev/null 2>&1; then
         wget -q -O "$dest" "$url" && return 0
+    else
+        echo "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
+        exit 3
     fi
-
-    echo "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
-    return 1
 }
 
 
@@ -57,8 +57,8 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
         echo "$INFO_NODE Downloading $TOOL_SCRIPT..."
-
-        if ! download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"; then
+        download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_PATH"
+        if [ $? -ne 0 ]; then
             echo "$ERROR_NODE Error: Failed to download $TOOL_SCRIPT. Skipping..." >&2
             continue
         fi
