@@ -40,24 +40,24 @@ download_file() {
 
 FILTERED_TOOLS_LIST=$(echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$')
 for tool in $FILTERED_TOOLS_LIST; do
-    TOOL_DIR=$(echo "$tool" | cut -d '-' -f1)
-    TOOL_SCRIPT="$TOOL_DIR/$tool.sh"
+    TOOL_SYSTEM=$(echo "$tool" | cut -d '-' -f1)
+    TOOL_SCRIPT="$tool.sh"
 
     # Check if script exists, otherwise download it
-    if [ ! -f "$TOOL_SCRIPT" ]; then
-        TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SCRIPT"
+    if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
+        TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
         echo "Downloading $TOOL_SCRIPT from $TOOL_URL..."
         
-        if ! download_file "$TOOL_URL" "$TOOL_SCRIPT"; then
+        if ! download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"; then
             echo "Error: Failed to download $TOOL_SCRIPT. Skipping..."
             continue
         fi
     fi
 
-    chmod +x "$TOOL_SCRIPT"
+    chmod +x "$TOOLS_DIR/$TOOL_SCRIPT"
     echo "Installing $tool from $TOOL_SCRIPT..."
-    "$TOOL_SCRIPT" "$TOOLS_DIR"
-    rm -f "$TOOL_SCRIPT"
+    "$TOOLS_DIR/$TOOL_SCRIPT" "$TOOLS_DIR"
+    rm -f "$TOOLS_DIR/$TOOL_SCRIPT"
     echo "Removed $TOOL_SCRIPT after execution."
 done
 
