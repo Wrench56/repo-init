@@ -33,7 +33,7 @@ download_file() {
     elif command -v wget >/dev/null 2>&1; then
         wget -q -O "$dest" "$url" && return 0
     else
-        echo "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url." >&2
+        printf "$ERROR_NODE Error: Neither 'curl' nor 'wget' is available. Cannot download $url.\n" >&2
         exit 3
     fi
 }
@@ -50,7 +50,7 @@ format_tool_output() {
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
-    echo "$ERROR_NODE Error: No configuration found!" >&2
+    printf "$ERROR_NODE Error: No configuration found!\n" >&2
     exit 1
 fi
 
@@ -60,33 +60,32 @@ fi
 
 # Ensure TOOLS_DIR exists
 mkdir -p "$TOOLS_DIR" || {
-    echo "$ERROR_NODE Error: Could not create tools directory '$TOOLS_DIR'." >&2
+    printf "$ERROR_NODE Error: Could not create tools directory '$TOOLS_DIR'.\n" >&2
     exit 2
 }
 
-echo "$INFO_NODE Processing tools..."
-echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
-    TOOL_SYSTEM=$(echo "$tool" | cut -d '-' -f1)
+printf "$INFO_NODE Processing tools...\n"
+printf "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
+    TOOL_SYSTEM=$(printf "$tool" | cut -d '-' -f1)
     TOOL_SCRIPT="$tool.sh"
 
     # Check if script exists, otherwise download it
     if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
-        echo "$INFO_NODE Downloading $TOOL_SCRIPT..."
+        printf "$INFO_NODE Downloading $TOOL_SCRIPT...\n"
 
         download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"
         if [ $? -ne 0 ]; then
-            echo "$ERROR_NODE Error: Failed to download $TOOL_SCRIPT. Skipping..." >&2
+            printf "$ERROR_NODE Error: Failed to download $TOOL_SCRIPT. Skipping...\n" >&2
             continue
         fi
     fi
 
     chmod +x "$TOOLS_DIR/$TOOL_SCRIPT"
-    echo "$INFO_NODE Installing $tool..."
+    printf "$INFO_NODE Installing $tool...\n"
     format_tool_output "$TOOLS_DIR/$TOOL_SCRIPT"
     rm -f "$TOOLS_DIR/$TOOL_SCRIPT"
-    echo "$INFO_NODE Removed $TOOL_SCRIPT."
+    printf "$INFO_NODE Removed $TOOL_SCRIPT.\n"
 done
 
-echo "$END_NODE Setup complete!"
-
+printf "$END_NODE Setup complete!\n"
