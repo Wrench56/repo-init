@@ -33,7 +33,7 @@ download_file() {
     elif command -v wget >/dev/null 2>&1; then
         wget -q -O "$dest" "$url" && return 0
     else
-        printf "%s Error: Neither 'curl' nor 'wget' is available. Cannot download %s.\n" "$ERROR_NODE" "$url" >&2
+        printf "%b Error: Neither 'curl' nor 'wget' is available. Cannot download %s.\n" "$ERROR_NODE" "$url" >&2
         exit 3
     fi
 }
@@ -41,7 +41,7 @@ download_file() {
 # Format the output of a called tool
 format_tool_output() {
     . "$@" 2>&1 | while IFS= read -r line; do
-        printf "%s    %s\n" "$OUTP_NODE" "$line"
+        printf "%b    %s\n" "$OUTP_NODE" "$line"
     done
 }
 
@@ -50,7 +50,7 @@ format_tool_output() {
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
-    printf "%s Error: No configuration found!\n" "$ERROR_NODE" >&2
+    printf "%b Error: No configuration found!\n" "$ERROR_NODE" >&2
     exit 1
 fi
 
@@ -60,11 +60,11 @@ fi
 
 # Ensure TOOLS_DIR exists
 mkdir -p "$TOOLS_DIR" || {
-    printf "%s Error: Could not create tools directory '%s'.\n" "$ERROR_NODE" "$TOOLS_DIR" >&2
+    printf "%b Error: Could not create tools directory '%s'.\n" "$ERROR_NODE" "$TOOLS_DIR" >&2
     exit 2
 }
 
-printf "%s Processing tools...\n" "$INFO_NODE"
+printf "%b Processing tools...\n" "$INFO_NODE"
 echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     TOOL_SYSTEM=$(echo "$tool" | cut -d '-' -f1)
     TOOL_SCRIPT="$tool.sh"
@@ -72,20 +72,20 @@ echo "$TOOLS_LIST" | grep -vE '^\s*#|^\s*$' | while read -r tool; do
     # Check if script exists, otherwise download it
     if [ ! -f "$TOOLS_DIR/$TOOL_SCRIPT" ]; then
         TOOL_URL="$DEFAULT_REPO_URL/$TOOL_SYSTEM/$TOOL_SCRIPT"
-        printf "%s Downloading %s...\n" "$INFO_NODE" "$TOOL_SCRIPT"
+        printf "%b Downloading %s...\n" "$INFO_NODE" "$TOOL_SCRIPT"
 
         download_file "$TOOL_URL" "$TOOLS_DIR/$TOOL_SCRIPT"
         if [ $? -ne 0 ]; then
-            printf "%s Error: Failed to download %s. Skipping...\n" "$ERROR_NODE" "$TOOL_SCRIPT" >&2
+            printf "%b Error: Failed to download %s. Skipping...\n" "$ERROR_NODE" "$TOOL_SCRIPT" >&2
             continue
         fi
     fi
 
     chmod +x "$TOOLS_DIR/$TOOL_SCRIPT"
-    printf "%s Installing %s...\n" "$INFO_NODE" "$tool"
+    printf "%b Installing %s...\n" "$INFO_NODE" "$tool"
     format_tool_output "$TOOLS_DIR/$TOOL_SCRIPT"
     rm -f "$TOOLS_DIR/$TOOL_SCRIPT"
-    printf "%s Removed %s.\n" "$INFO_NODE" "$TOOL_SCRIPT"
+    printf "%b Removed %s.\n" "$INFO_NODE" "$TOOL_SCRIPT"
 done
 
-printf "%s Setup complete!\n" "$END_NODE"
+printf "%b Setup complete!\n" "$END_NODE"
