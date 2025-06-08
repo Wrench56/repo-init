@@ -20,6 +20,7 @@ rules:
     optional: true
     options:
       - commitlint
+      - git
       - testers
       - readme
   subject-empty:
