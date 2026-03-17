@@ -21,6 +21,7 @@ rules:
     options:
       - commitlint
       - git
+      - direnv
       - testers
       - readme
       - config
