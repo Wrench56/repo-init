@@ -20,4 +20,5 @@ else
     exit 1
 fi
 
+chmod +x "$OUT"
 echo "Downloaded $OUT from $TAG"
