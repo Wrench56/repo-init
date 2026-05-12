@@ -23,6 +23,7 @@ rules:
       - git
       - direnv
       - testers
+      - cforge
       - readme
       - config
   subject-empty:
